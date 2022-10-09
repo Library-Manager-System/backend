@@ -2,8 +2,7 @@
 
 ## Install
 
-    pip install "uvicorn[standard]"
-    pip install fastapi
+    pip install -r requirements.txt
 
 ## Start Server
 
@@ -30,3 +29,24 @@
       "online": true
     }
 
+## Login
+
+### Request
+
+`POST /user/login`
+
+Header
+
+    Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiIiwiaWF0IjoxLCJleHAiOjF9.EDlEYFy92fI9WBNCYyyLZkr7xUq4UyOfNMV3Akm1sn8"
+
+Body
+
+    {
+      "username": "",
+      "password": ""
+    }
+
+### Response
+    {
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiIiwiaWF0IjoxLCJleHAiOjF9.EDlEYFy92fI9WBNCYyyLZkr7xUq4UyOfNMV3Akm1sn8"
+    }

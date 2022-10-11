@@ -2,7 +2,18 @@
 
 ## Install
 
+    python -m venv env
+
+Run the right script inside `env/Scripts/` to activate the virtual environment (according to your OS and shell)
+
+Install dependencies:
+
     pip install -r requirements.txt
+
+Create a file named `.env` containging:
+
+    secret = "secret key"
+    algorithm = "HS256"
 
 ## Start Server
 

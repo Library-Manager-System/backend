@@ -7,9 +7,9 @@ JWT_ALGORITHM = config("algorithm")
 
 
 # Sign JWT
-def signJWT(user: str, duration: int = 3600, type: str = "user"): # 3600 seconds = 1 hour
+def signJWT(email: str, duration: int = 3600, type: str = "user"): # 3600 seconds = 1 hour
     payload = {
-        "user": user,
+        "email": email,
         "iat": time.time(),
         "exp": time.time() + duration,
     }

@@ -1,7 +1,9 @@
 from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
+
 from auth.jwt_handler import signJWT, decodeJWT
 from auth.jwt_bearer import JWTBearer
+from database.user import User
 
 router = APIRouter(
     prefix="/user"
@@ -13,26 +15,53 @@ async def read_user(Authorization: str | None = Header(default=None)):
     token_data = decodeJWT(token=Authorization.split(" ")[1])
     if token_data == None: return {"error": "Invalid token"}
 
-    print(Authorization)
-
     # TODO use user ids
-    user = token_data["user"]
-    print(user)
+    email = token_data["email"]
 
     return {
-        "username": user
+        "email": email
     }
 
 
 # Login
 class Login(BaseModel):
-    username: str
+    email: str
     password: str
 
 @router.post("/login", tags=["user"])
 async def login_user(login: Login):
-    # TODO - Check if user exists in database
-    if login.username == "test" and login.password == "test":
-        return signJWT(login.username)
-    else:
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+    try:
+        user = User.find(login.email)
+        if user.verify_password(login.password):
+            return signJWT(user.email)
+        else:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+    except:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
+# Register
+class Register(BaseModel):
+    name: str
+    email: str
+    password: str
+    phone_number: str
+    address: str
+    user_type: int
+
+@router.post("/register", tags=["user"])
+async def register_user(register: Register):
+    user = User.new(
+        register.name,
+        register.email,
+        register.password,
+        register.phone_number,
+        register.address,
+        register.user_type
+    )
+    # user is int
+    if (type(user) == int):
+        if (user == 1062):
+            raise HTTPException(status_code=409, detail="Email already exists")
+        else:
+            raise HTTPException(status_code=500, detail="Internal server error")
+    return signJWT(register.email)

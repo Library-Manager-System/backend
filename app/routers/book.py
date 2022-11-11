@@ -1,8 +1,18 @@
 from fastapi import APIRouter, HTTPException
 
+from database.book import Book
+
 router = APIRouter(
     prefix="/book"
 )
+
+# Get all books
+@router.get("/", tags=["book"])
+async def list_books():
+    try:
+        return Book.list_book()
+    except:
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 # Search for books
 @router.get("/search")

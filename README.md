@@ -87,3 +87,25 @@ Body
     {
       "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiIiwiaWF0IjoxLCJleHAiOjF9.EDlEYFy92fI9WBNCYyyLZkr7xUq4UyOfNMV3Akm1sn8"
     }
+
+## List Books
+
+### Request
+
+`GET /book`
+
+    List all books
+
+### Response
+    [
+      {
+        "id": 1,
+        "isbn_book": "0000000000000",
+        "title_book": "title",
+        "limit_days_loan": days,
+        "year_book": yyyy,
+        "synopsis_book": "synopsis",
+        "id_publisher": 1
+      },
+      ...
+    ]

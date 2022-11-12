@@ -31,7 +31,7 @@ async def search_books(query: str):
 
 # Get book by isbn
 @router.get("/isbn")
-async def search_isbn(isbn: int):
+async def search_isbn(isbn: str):
     #TODO get book by isbn in database
     data = {
         "isbn": isbn,
@@ -42,4 +42,4 @@ async def search_isbn(isbn: int):
         "synopsis": "synopsis",
         "category": "category"
     }
-    return data
+    return vars(Book.find_book_by_isbn(isbn))

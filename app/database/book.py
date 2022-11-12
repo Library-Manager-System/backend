@@ -33,14 +33,34 @@ class Book:
     # Consultar livros específicos
         # TODO - receber algum dos 3 tipos de dado para mostrar pesquisa de livros
         # TODO - permitir quantos livros mostrar (ex.: 'LIMIT 4,5')
+        # TODO - corrigir erro no SQL
+    # @classmethod
+    # def find_book_by_isbn_or_title(cls, book_parameter):
+    #     especific_book = db.execute(
+    #     '''SELECT * FROM tb_book
+    #         WHERE isbn_book = %s'
+    #         OR
+    #         title_book LIKE '%{%s}%';''', [book_parameter, book_parameter])
+    #     return Book(especific_book.book_parameter)
+
     @classmethod
-    def find_book_by_isbn_or_title(cls, book_parameter):
+    def find_book_by_isbn(cls, isbn: str):
         especific_book = db.execute(
-        '''SELECT * FROM tb_book
-            WHERE isbn_book = %s'
-            OR
-            title_book LIKE '%{%s}%';''', [book_parameter, book_parameter])
-        return Book(especific_book.book_parameter)
+            '''
+            SELECT * FROM tb_book
+            WHERE isbn_book = %s
+            ''',
+            [isbn]
+        )[0]
+        return Book(
+            especific_book.id_book,
+            especific_book.isbn_book,
+            especific_book.title_book,
+            especific_book.limit_days_loan,
+            especific_book.year_book,
+            especific_book.syphosis_book or "",
+            especific_book.id_publisher
+        )
 
 
     # Adicionar livros

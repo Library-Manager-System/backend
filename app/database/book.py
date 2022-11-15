@@ -24,42 +24,58 @@ class Book:
                 book.title_book,
                 book.limit_days_loan,
                 book.year_book,
-                book.syphosis_book if book.syphosis_book else "",
+                book.syphosis_book or "",
                 book.id_publisher
             ))
         return books
 
 
     # Consultar livros específicos
-        # TODO - receber algum dos 3 tipos de dado para mostrar pesquisa de livros
-        # TODO - permitir quantos livros mostrar (ex.: 'LIMIT 4,5')
-        # TODO - corrigir erro no SQL
-    # @classmethod
-    # def find_book_by_isbn_or_title(cls, book_parameter):
-    #     especific_book = db.execute(
-    #     '''SELECT * FROM tb_book
-    #         WHERE isbn_book = %s'
-    #         OR
-    #         title_book LIKE '%{%s}%';''', [book_parameter, book_parameter])
-    #     return Book(especific_book.book_parameter)
+    @classmethod
+    def find_book_by_data(cls, book_parameter):
+        list_book = db.execute(
+            '''SELECT * FROM tb_book
+            WHERE isbn_book = %s
+            OR title_book LIKE %s
+            OR year_book = %s
+            LIMIT 10;''',
+            [
+                book_parameter,
+                ("%" + book_parameter + "%"),
+                book_parameter
+            ]
+        )
+        books = []
+        for book in list_book:
+            books.append(Book(
+                book.id_book,
+                book.isbn_book,
+                book.title_book,
+                book.limit_days_loan,
+                book.year_book,
+                book.syphosis_book or "",
+                book.id_publisher
+            ))
+        return books
+
 
     @classmethod
     def find_book_by_isbn(cls, isbn: str):
-        especific_book = db.execute(
+        specific_book = db.execute(
             '''
             SELECT * FROM tb_book
-            WHERE isbn_book = %s
+            WHERE isbn_book = %s;
             ''',
             [isbn]
         )[0]
         return Book(
-            especific_book.id_book,
-            especific_book.isbn_book,
-            especific_book.title_book,
-            especific_book.limit_days_loan,
-            especific_book.year_book,
-            especific_book.syphosis_book or "",
-            especific_book.id_publisher
+            specific_book.id_book,
+            specific_book.isbn_book,
+            specific_book.title_book,
+            specific_book.limit_days_loan,
+            specific_book.year_book,
+            specific_book.syphosis_book or "",
+            specific_book.id_publisher
         )
 
 

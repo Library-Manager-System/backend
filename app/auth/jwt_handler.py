@@ -7,11 +7,12 @@ JWT_ALGORITHM = config("algorithm")
 
 
 # Sign JWT
-def signJWT(email: str, duration: int = 3600, type: str = "user"): # 3600 seconds = 1 hour
+def signJWT(email: str, duration: int = 3600, type: int = 1): # 3600 seconds = 1 hour
     payload = {
         "email": email,
         "iat": time.time(),
         "exp": time.time() + duration,
+        "type": type
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return {

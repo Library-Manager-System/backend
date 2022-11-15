@@ -82,9 +82,9 @@ class Book:
     # Adicionar livros
     @classmethod
     def insert_book(cls, isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher):
-        new_book = '''INSERT INTO tb_book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
+        new_book = '''INSERT INTO tb_book(isbn_book, title_book, limit_days_loan, year_book, syphosis_book, id_publisher)
             VALUES
-	            (%s, %s, %s, %s, %s, %s);
+                (%s, %s, %s, %s, %s, %s);
         '''
         try:
             parameters = [isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher]
@@ -95,19 +95,38 @@ class Book:
 
 
     # Alterar livros específicos
-        # Opção 1: alterar algum dado específico
-        # Opção 2: alterar todos os dados, podendo colocar opção "não alterar/manter dado anterior"
-        # Lógica:
-            # Receber entrada do usuário sobre qual livro deseja alterar dados (por título ou isbn)
-            # Mostrar dados do livro
-            # O usuário colocar campos que deseja alterar do livro
-            # Perguntar se deseja realmente alterar
-            # Alterar dados do livro
-    # @classmethod
-    # def alter_book(cls, book_parameter):
-    #     altered_book = db.execute(
-    #         '''ALTER TABLE * FROM tb_book WHERE isbn_book = %s OR title_book = %s;''', [book_parameter, book_parameter])[0]
-    #     return Book(altered_book.book_parameter)
+    @classmethod
+    def edit_book(cls, isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher):
+        book = Book.find_book_by_isbn(isbn_book)
+        db.execute(
+            '''UPDATE tb_book SET
+            title_book = %s,
+            limit_days_loan = %s,
+            year_book = %s,
+            syphosis_book = %s,
+            id_publisher = %s
+            WHERE isbn_book = %s
+            LIMIT 1;''',
+            [
+                title_book or book.title_book,
+                limit_days_loan or book.limit_days_loan,
+                year_book or book.year_book,
+                synopsis_book or book.synopsis_book or "",
+                id_publisher or book.id_publisher,
+                isbn_book
+            ],
+            commit=True
+        )
+        book = Book.find_book_by_isbn(isbn_book)
+        return Book(
+            book.id,
+            book.isbn_book,
+            book.title_book,
+            book.limit_days_loan,
+            book.year_book,
+            book.synopsis_book or "",
+            book.id_publisher
+        )
 
 
     # Deletar livros específicos

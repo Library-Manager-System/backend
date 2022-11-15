@@ -15,9 +15,9 @@ class User:
     @classmethod
     def new(cls, name, email, password: str, phone_number, address, user_type):
         hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-        query = '''INSERT INTO tb_user(name_user, email_user, password_user, phone_number_user, address_user, id_user_type) 
-            values 
-	            (%s, %s, %s, %s, %s, %s);
+        query = '''INSERT INTO tb_user(name_user, email_user, password_user, phone_number_user, address_user, id_user_type)
+            values
+                (%s, %s, %s, %s, %s, %s);
         '''
         try:
             parameters = [name, email, hash,

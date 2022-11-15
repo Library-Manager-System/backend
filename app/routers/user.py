@@ -33,7 +33,7 @@ async def login_user(login: Login):
     try:
         user = User.find(login.email)
         if user.verify_password(login.password):
-            return signJWT(user.email)
+            return signJWT(user.email, type=user.user_type)
         else:
             raise HTTPException(status_code=401, detail="Invalid email or password")
     except:
@@ -46,7 +46,6 @@ class Register(BaseModel):
     password: str
     phone_number: str
     address: str
-    user_type: int
 
 @router.post("/register", tags=["user"])
 async def register_user(register: Register):
@@ -56,7 +55,7 @@ async def register_user(register: Register):
         register.password,
         register.phone_number,
         register.address,
-        register.user_type
+        1
     )
     # user is int
     if (type(user) == int):

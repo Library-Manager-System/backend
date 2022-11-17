@@ -51,3 +51,21 @@ async def return_book(
 
 # Authorized to Employees
 #TODO Authorize loan
+@router.get("/authorize", dependencies=[Depends(JWTBearer())], tags=["loan"])
+async def authorize_loan(
+        loan_id: str,
+        Authorization: str | None = Header(default=None)
+    ):
+    # Check if user is employee
+    token_data = decodeJWT(token=Authorization.split(" ")[1])
+    user_type = token_data["type"]
+    if (user_type != 1):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    #TODO Authorize in database the loan
+    return {
+        "isbn": "",
+        "loan_date": "",
+        "devolution_date": "",
+    }
+

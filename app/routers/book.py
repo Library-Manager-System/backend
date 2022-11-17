@@ -33,23 +33,6 @@ async def search_isbn(isbn: str):
         raise HTTPException(status_code=404, detail="Book not found")
 
 
-# Loan book
-@router.get("/loan", dependencies=[Depends(JWTBearer())], tags=["book"])
-async def loan_book(
-        book_id: str,
-        copy_id: str,
-        Authorization: str | None = Header(default=None)
-    ):
-    # Get user email from token
-    token_data = decodeJWT(token=Authorization.split(" ")[1])
-    email = token_data["email"]
-
-    #TODO Store loan in database to be approved by librarian
-    # return Book.loan_book(book_id, copy_id, email)
-    # errors: book not found, copy not available, user has already loaned too many books
-    return {"message": "Loan request sent"}
-
-
 # Authorized to Employees
 # Edit book
 @router.put("/edit", dependencies=[Depends(JWTBearer())], tags=["book"])

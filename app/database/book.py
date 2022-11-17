@@ -24,7 +24,7 @@ class Book:
                 book.title_book,
                 book.limit_days_loan,
                 book.year_book,
-                book.syphosis_book or "",
+                book.synopsis_book or "",
                 book.id_publisher
             ))
         return books
@@ -53,7 +53,7 @@ class Book:
                 book.title_book,
                 book.limit_days_loan,
                 book.year_book,
-                book.syphosis_book or "",
+                book.synopsis_book or "",
                 book.id_publisher
             ))
         return books
@@ -74,7 +74,7 @@ class Book:
             specific_book.title_book,
             specific_book.limit_days_loan,
             specific_book.year_book,
-            specific_book.syphosis_book or "",
+            specific_book.synopsis_book or "",
             specific_book.id_publisher
         )
 
@@ -82,7 +82,7 @@ class Book:
     # Adicionar livros
     @classmethod
     def insert_book(cls, isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher):
-        new_book = '''INSERT INTO tb_book(isbn_book, title_book, limit_days_loan, year_book, syphosis_book, id_publisher)
+        new_book = '''INSERT INTO tb_book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
             VALUES
                 (%s, %s, %s, %s, %s, %s);
         '''
@@ -103,7 +103,7 @@ class Book:
             title_book = %s,
             limit_days_loan = %s,
             year_book = %s,
-            syphosis_book = %s,
+            synopsis_book = %s,
             id_publisher = %s
             WHERE isbn_book = %s
             LIMIT 1;''',

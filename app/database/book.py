@@ -1,9 +1,8 @@
 from database.shared import db
 import mysql.connector
 
-
 class Book:
-    def __init__(self, id: int, isbn_book: str, title_book: str, limit_days_loan: int, year_book: int, synopsis_book: str, id_publisher: int, name_publisher: str = None, name_author: str = None, name_category: str = None) -> None:
+    def __init__(self, id:int, isbn_book:str, title_book:str, limit_days_loan:int, year_book:int, synopsis_book:str, id_publisher:int) -> None:
         self.id = id
         self.isbn_book = isbn_book
         self.title_book = title_book
@@ -11,26 +10,7 @@ class Book:
         self.year_book = year_book
         self.synopsis_book = synopsis_book
         self.id_publisher = id_publisher
-        self.name_publisher = name_publisher,
-        self.name_author = name_author,
-        self.name_category = name_category
 
-    # Adicionar livros
-    @classmethod
-    def new(cls, isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher):
-        new_book = '''
-            INSERT INTO 
-            tb_book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
-            VALUES
-                (%s, %s, %s, %s, %s, %s);
-        '''
-        try:
-            parameters = [isbn_book, title_book, limit_days_loan,
-                          year_book, synopsis_book, id_publisher]
-            db.execute(new_book, parameters, commit=True)
-            return Book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
-        except mysql.connector.Error as err:
-            return err.errno
 
     # Consultar todos os livros
     @classmethod
@@ -49,10 +29,10 @@ class Book:
             ))
         return books
 
+
     # Consultar livros específicos
     @classmethod
-    def find_book_by_data(cls,
-                          book_parameter):
+    def find_book_by_data(cls, book_parameter):
         list_book = db.execute(
             '''SELECT * FROM tb_book
             WHERE isbn_book = %s
@@ -78,26 +58,14 @@ class Book:
             ))
         return books
 
+
     @classmethod
     def find_book_by_isbn(cls, isbn: str):
         specific_book = db.execute(
-            ''' SELECT
-                    B.id_book, B.isbn_book, B.title_book, 
-                    B.limit_days_loan, B.year_book, B.synopsis_book,
-                    P.name_publisher, P.id_publisher, A.name_author, C.name_category
-                FROM tb_book B
-                    INNER JOIN tb_publisher P
-                        ON P.id_publisher = B.id_publisher
-                    INNER JOIN tb_book_author BA
-                        ON BA.id_book = B.id_book
-                    INNER JOIN tb_author A
-                        ON A.id_author = BA.id_Author
-                    INNER JOIN tb_book_category BC
-                        ON BC.id_book = B.id_book
-                    INNER JOIN tb_category C
-                        ON C.id_category = BC.id_category
-                WHERE isbn_book = %s
-                GROUP BY isbn_book;''',
+            '''
+            SELECT * FROM tb_book
+            WHERE isbn_book = %s;
+            ''',
             [isbn]
         )[0]
         return Book(
@@ -107,11 +75,24 @@ class Book:
             specific_book.limit_days_loan,
             specific_book.year_book,
             specific_book.synopsis_book or "",
-            specific_book.id_publisher,
-            specific_book.name_publisher,
-            specific_book.name_author,
-            specific_book.name_category,
+            specific_book.id_publisher
         )
+
+
+    # Adicionar livros
+    @classmethod
+    def insert_book(cls, isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher):
+        new_book = '''INSERT INTO tb_book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
+            VALUES
+                (%s, %s, %s, %s, %s, %s);
+        '''
+        try:
+            parameters = [isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher]
+            db.execute(new_book, parameters, commit=True)
+            return Book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
+        except mysql.connector.Error as err:
+            return err.errno
+
 
     # Alterar livros específicos
     @classmethod
@@ -147,12 +128,13 @@ class Book:
             book.id_publisher
         )
 
+
     # Deletar livros específicos
         # Lógica:
-        # Receber entrada do usuário sobre qual livro deseja deletar dados (por título ou isbn)
-        # Mostrar dados do livro
-        # Perguntar se deseja realmente deletar
-        # Deletar dados do livro
+            # Receber entrada do usuário sobre qual livro deseja deletar dados (por título ou isbn)
+            # Mostrar dados do livro
+            # Perguntar se deseja realmente deletar
+            # Deletar dados do livro
     # @classmethod
     # def delete_book(cls, book_parameter):
     #     deleted_book = db.execute(

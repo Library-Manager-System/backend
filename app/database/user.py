@@ -4,7 +4,7 @@ import mysql.connector
 
 
 class User:
-    def __init__(self, name, email, password_hash, phone_number, address, user_type, confirmed_account) -> None:
+    def __init__(self, name, email, password_hash, phone_number, address, user_type, confirmed_account = False) -> None:
         self.name = name
         self.email = email
         self.__password_hash = password_hash
@@ -14,7 +14,7 @@ class User:
         self.confirmed_account = confirmed_account
 
     @classmethod
-    def new(cls, name, email, password: str, phone_number, address, user_type, confirmed_account):
+    def new(cls, name, email, password: str, phone_number, address, user_type, confirmed_account = False):
         hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         query = '''
         INSERT INTO tb_user(name_user, email_user, password_user, phone_number_user, address_user, id_user_type, confirmed_account)

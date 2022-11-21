@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Header, Depends
 from pydantic import BaseModel
 
-from auth.jwt_handler import signJWT, decodeJWT
+from auth.jwt_handler import signJWT
 from auth.jwt_bearer import JWTBearer
 from database.user import User
 
@@ -10,16 +10,11 @@ router = APIRouter(
 )
 
 
-@router.get("/", dependencies=[Depends(JWTBearer())], tags=["user"])
-async def read_user(Authorization: str | None = Header(default=None)):
-    token_data = decodeJWT(token=Authorization.split(" ")[1])
-    if token_data == None: return {"error": "Invalid token"}
-
-    # TODO use user ids
-    email = token_data["email"]
+@router.get("/", tags=["user"])
+async def read_user(token_data = Depends(JWTBearer())):
 
     return {
-        "email": email
+        "email": token_data["email"]
     }
 
 

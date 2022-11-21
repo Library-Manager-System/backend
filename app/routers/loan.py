@@ -14,15 +14,14 @@ router = APIRouter(
 
 
 # Loan book
-@router.get("/request", dependencies=[Depends(JWTBearer())], tags=["loan"])
+@router.get("/request", tags=["loan"])
 async def request_loan_book(
         book_isbn: str,
         copy_id: str,
         date_of_collection: date = date.today(), # date format: YYYY-MM-DD
-        Authorization: str | None = Header(default=None)
+        token_data = Depends(JWTBearer())
     ):
     # Get user email from token
-    token_data = decodeJWT(token=Authorization.split(" ")[1])
     email = token_data["email"]
 
     user_id = User.find(email).id
@@ -56,17 +55,11 @@ async def request_loan_book(
     }
 
 
-@router.get("/return", dependencies=[Depends(JWTBearer())], tags=["loan"])
+@router.get("/return", tags=["loan"])
 async def return_book(
         loan_id: str,
-        Authorization: str | None = Header(default=None)
+        token_data = Depends(JWTBearer(min_permission=2))
     ):
-
-    # Check if user is employee
-    token_data = decodeJWT(token=Authorization.split(" ")[1])
-    user_type = token_data["type"]
-    if (user_type == 1):
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
     #TODO Add to the tb_loan the devolution date
     return {
@@ -76,16 +69,15 @@ async def return_book(
     }
 
 
-@router.get("/list", dependencies=[Depends(JWTBearer())], tags=["loan"])
+@router.get("/list", tags=["loan"])
 async def list_loans(
         email: str = None,
-        Authorization: str | None = Header(default=None)
+        token_data = Depends(JWTBearer())
     ):
-    token_data = decodeJWT(token=Authorization.split(" ")[1])
-    user_type = token_data["type"]
+    user_permission = token_data["permission"]
     # Check if user is employee or if the user is requesting his own loans
     if (
-        user_type == 1
+        user_permission == 1
         or
         email == None):
         email = token_data["email"]
@@ -95,16 +87,10 @@ async def list_loans(
 
 # Authorized to Employees
 #TODO Authorize loan
-@router.get("/authorize", dependencies=[Depends(JWTBearer())], tags=["loan"])
+@router.get("/authorize", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["loan"])
 async def authorize_loan(
         loan_id: str,
-        Authorization: str | None = Header(default=None)
     ):
-    # Check if user is employee
-    token_data = decodeJWT(token=Authorization.split(" ")[1])
-    user_type = token_data["type"]
-    if (user_type == 1):
-        raise HTTPException(status_code=401, detail="Unauthorized")
     
     #TODO Authorize in database the loan
     return {

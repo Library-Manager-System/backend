@@ -24,8 +24,8 @@ class User:
         '''
         try:
             parameters = [name, email, hash, phone_number, address, user_type, confirmed_account]
-            db.execute(query, parameters, commit=True)
-            return User(name, email, hash, phone_number, address, user_type)
+            user_id = db.execute(query, parameters, commit=True)
+            return User(user_id, name, email, hash, phone_number, address, user_type)
         except mysql.connector.Error as err:
             return err.errno
 

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 
 from auth.jwt_bearer import JWTBearer
 from database.book import Book

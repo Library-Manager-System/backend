@@ -10,14 +10,7 @@ Install dependencies:
 
     pip install -r requirements.txt
 
-Create a file named `.env` containging:
-
-    secret = "secret key"
-    algorithm = "HS256"
-    DB_USER = "user"
-    DB_PASSWORD = "password"
-    DB_HOST = "host"
-    DB_NAME = "db_olms"
+Copy `.env.template` to `.env` and edit it to your needs.
 
 ## Start Server
 
@@ -29,83 +22,14 @@ Create a file named `.env` containging:
 
 ----------
 
-# API
+# Create a admin user
 
-## Is Online?
+`GET /admin/first-access`
 
-### Request
+- This will retur a token to:
 
-`GET /`
+1) Create the first admin
+2) Confirm the first admin
+3) Give the first admin the maximum permission
 
-    Used to check if server is online
-
-### Response
-    {
-      "online": true
-    }
-
-## Login
-
-### Request
-
-`POST /user/login`
-
-Header
-
-    Authorization: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiIiwiaWF0IjoxLCJleHAiOjF9.EDlEYFy92fI9WBNCYyyLZkr7xUq4UyOfNMV3Akm1sn8"
-
-Body
-
-    {
-      "email": "string",
-      "password": "string"
-    }
-
-### Response
-    {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiIiwiaWF0IjoxLCJleHAiOjF9.EDlEYFy92fI9WBNCYyyLZkr7xUq4UyOfNMV3Akm1sn8"
-    }
-
-## Register
-
-### Request
-
-`POST /user/register`
-
-Body
-
-    {
-      "name": "string",
-      "email": "string",
-      "password": "string",
-      "phone_number": "string",
-      "address": "string",
-      "user_type": int
-    }
-
-### Response
-    {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiIiwiaWF0IjoxLCJleHAiOjF9.EDlEYFy92fI9WBNCYyyLZkr7xUq4UyOfNMV3Akm1sn8"
-    }
-
-## List Books
-
-### Request
-
-`GET /book`
-
-    List all books
-
-### Response
-    [
-      {
-        "id": 1,
-        "isbn_book": "0000000000000",
-        "title_book": "title",
-        "limit_days_loan": days,
-        "year_book": yyyy,
-        "synopsis_book": "synopsis",
-        "id_publisher": 1
-      },
-      ...
-    ]
+(this token will be invalid after one hour)

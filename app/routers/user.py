@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Header, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 
 from auth.jwt_handler import signJWT
@@ -26,12 +26,21 @@ class Login(BaseModel):
 @router.post("/login", tags=["user"])
 async def login_user(login: Login):
     try:
+        # Get user from database
         user = User.find(login.email)
+        # Check password
         if user.verify_password(login.password):
+            # Check if Confirmed user
+            if user.confirmed_account == 0:
+                # User not confirmed
+                raise HTTPException(status_code=401, detail="Account not confirmed")
+            # Login Success - Return JWT
             return signJWT(user.email, type=user.user_type)
         else:
+            # Password incorrect
             raise HTTPException(status_code=401, detail="Invalid email or password")
-    except:
+    except IndexError:
+        # User not found
         raise HTTPException(status_code=401, detail="Invalid email or password")
 
 # Register
@@ -58,4 +67,18 @@ async def register_user(register: Register):
             raise HTTPException(status_code=409, detail="Email already exists")
         else:
             raise HTTPException(status_code=500, detail="Internal server error")
-    return signJWT(register.email)
+    return {
+        "msg": "User created"
+    }
+
+
+# Authorized to Employees
+# Confirm user
+@router.put("/confirm", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["admin"])
+async def confirm_user(email: str):
+    try:
+        user = User.find(email)
+        user.confirm_account()
+        return user
+    except IndexError:
+        raise HTTPException(status_code=404, detail="User not found")

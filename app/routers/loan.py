@@ -1,8 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends, Header, Body
+from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 from typing import Union
 from datetime import date, timedelta
 
-from auth.jwt_handler import decodeJWT
 from auth.jwt_bearer import JWTBearer
 from database.loan import Loan
 from database.user import User
@@ -15,17 +15,20 @@ router = APIRouter(
 
 
 # Loan book
-@router.get("/request", tags=["loan"])
+class LoanBook(BaseModel):
+    isbn: str
+    date_of_collection: date = date.today() # date format: YYYY-MM-DD
+
+@router.post("/request", tags=["loan"])
 async def request_loan_book(
-        book_isbn: str,
-        date_of_collection: date = date.today(), # date format: YYYY-MM-DD
+        loan_book: LoanBook,
         token_data = Depends(JWTBearer())
     ):
     # Get user email from token
     email = token_data["email"]
 
     # Get coppies of book
-    copies = Copy.find_all_copy_by_isbn(book_isbn)
+    copies = Copy.find_all_copy_by_isbn(loan_book.isbn)
     if len(copies) == 0:
         # No copies of book
         raise HTTPException(status_code=404, detail="Book not found")
@@ -43,13 +46,13 @@ async def request_loan_book(
     user_id = User.find(email).id
     try:
         # Get book from database
-        book = Book.find_book_by_isbn(book_isbn)
+        book = Book.find_book_by_isbn(loan_book.isbn)
     except IndexError:
         # Book not found
         raise HTTPException(status_code=404, detail="Book not found")
 
     # Date of return
-    date_expected_devolution_loan = date_of_collection + timedelta(days=book.limit_days_loan)
+    date_expected_devolution_loan = loan_book.date_of_collection + timedelta(days=book.limit_days_loan)
 
     #TODO user has already loaned too many books
 
@@ -57,7 +60,7 @@ async def request_loan_book(
     loan = Loan.new(
         user_id,
         copy.id,
-        date_of_collection,
+        loan_book.date_of_collection,
         date.today(),
         date_expected_devolution_loan,
         False,
@@ -74,16 +77,19 @@ async def request_loan_book(
     copy.change_availability(False)
 
     return {
-        "isbn": book_isbn,
+        "isbn": loan_book.isbn,
         "title": book.title_book,
-        "expected_loan_date": date_of_collection,
+        "expected_loan_date": loan_book.date_of_collection,
         "expected_devolution_date": date_expected_devolution_loan,
     }
 
+# Return book
+class ReturnBook(BaseModel):
+    loan_id: str
 
-@router.get("/return", tags=["loan"])
+@router.post("/return", tags=["loan"])
 async def return_book(
-        loan_id: str,
+        return_book: ReturnBook,
         token_data = Depends(JWTBearer(min_permission=2))
     ):
 
@@ -105,23 +111,39 @@ async def list_loans(
     if (
         user_permission == 1
         or
-        email == None):
+        email == None
+    ):
         email = token_data["email"]
 
     return Loan.list_user_loans(email)
 
 
 # Authorized to Employees
-#TODO Authorize loan
-@router.get("/authorize", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["loan"])
+# Authorize loan
+class AuthorizeLoan(BaseModel):
+    loan_id: int
+
+@router.post("/authorize", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["loan"])
 async def authorize_loan(
-        loan_id: str,
+        authorize_loan: AuthorizeLoan,
     ):
-    
-    #TODO Authorize in database the loan
+    loan_id = authorize_loan.loan_id
+
+    try:
+        # Get loan from database
+        loan = Loan.find(loan_id)
+    except IndexError:
+        # Loan not found
+        raise HTTPException(status_code=404, detail="Loan not found")
+
+    loan.approve_loan()
+
     return {
-        "isbn": "",
-        "loan_date": "",
-        "devolution_date": "",
+        "isbn": loan.isbn,
+        "loan_date": loan.dt_loan,
+        "devolution_date": loan.dt_expected_devolution_loan,
     }
 
+@router.get("/list/all", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["loan"])
+async def list_all_loans():
+    return Loan.list_loans()

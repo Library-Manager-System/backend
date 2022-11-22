@@ -38,3 +38,14 @@ class Copy:
         query = """
         SELECT * FROM vw_copy WHERE isbn_book = %s;
         """
+        parameters = [isbn]
+        copies = db.execute(query, parameters)
+        return [Copy(copy.id_copy, copy.code_copy, copy.available_copy, copy.id_book, copy.address_copy, copy.title_book, copy.isbn_book) for copy in copies]
+
+    def change_availability(self, available_copy):
+        query = """
+        UPDATE tb_copy SET available_copy = %s WHERE id_copy = %s;
+        """
+        parameters = [available_copy, self.id]
+        db.execute(query, parameters, commit=True)
+        self.available_copy = available_copy

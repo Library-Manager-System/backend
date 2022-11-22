@@ -7,6 +7,7 @@ from auth.jwt_bearer import JWTBearer
 from database.loan import Loan
 from database.user import User
 from database.book import Book
+from database.copy import Copy
 
 router = APIRouter(
     prefix="/book/loan"
@@ -17,36 +18,61 @@ router = APIRouter(
 @router.get("/request", tags=["loan"])
 async def request_loan_book(
         book_isbn: str,
-        copy_id: str,
         date_of_collection: date = date.today(), # date format: YYYY-MM-DD
         token_data = Depends(JWTBearer())
     ):
     # Get user email from token
     email = token_data["email"]
 
-    user_id = User.find(email).id
-    try:
-        book = Book.find_book_by_isbn(book_isbn)
-    except IndexError:
+    # Get coppies of book
+    copies = Copy.find_all_copy_by_isbn(book_isbn)
+    if len(copies) == 0:
+        # No copies of book
         raise HTTPException(status_code=404, detail="Book not found")
 
+    # First copy available
+    copy = next(
+        (copy for copy in copies if copy.available_copy),
+        None
+    )
+    if copy is None:
+        # No copies available
+        raise HTTPException(status_code=404, detail="No copies available")
+
+    # Get user from database
+    user_id = User.find(email).id
+    try:
+        # Get book from database
+        book = Book.find_book_by_isbn(book_isbn)
+    except IndexError:
+        # Book not found
+        raise HTTPException(status_code=404, detail="Book not found")
+
+    # Date of return
     date_expected_devolution_loan = date_of_collection + timedelta(days=book.limit_days_loan)
 
+    #TODO user has already loaned too many books
+
+    # Create loan
     loan = Loan.new(
         user_id,
-        copy_id,
+        copy.id,
         date_of_collection,
         date.today(),
         date_expected_devolution_loan,
         False,
     )
 
-    # errors: book not found, copy not available, user has already loaned too many books
     if (loan == 1062):
+        # Duplicate entry
         raise HTTPException(status_code=409, detail="Book already requested")
     elif (loan == 1452):
+        # Foreign key constraint
         raise HTTPException(status_code=409, detail="Invalid id reference")
-    print(loan)
+
+    # Set copy as unavailable
+    copy.change_availability(False)
+
     return {
         "isbn": book_isbn,
         "title": book.title_book,

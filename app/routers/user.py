@@ -35,7 +35,7 @@ async def login_user(login: Login):
                 # User not confirmed
                 raise HTTPException(status_code=401, detail="Account not confirmed")
             # Login Success - Return JWT
-            return signJWT(user.email, type=user.user_type)
+            return signJWT(user.email, permission_level=user.get_permission_level())
         else:
             # Password incorrect
             raise HTTPException(status_code=401, detail="Invalid email or password")

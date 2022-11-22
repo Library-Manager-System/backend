@@ -41,7 +41,7 @@ class JWTBearer(HTTPBearer):
         isTokenValid: bool = False
         try:
             payload = decodeJWT(jwtoken)
-            self.permission = payload["type"]
+            self.permission = payload["permission_level"]
             self.email = payload["email"]
         except:
             payload = None

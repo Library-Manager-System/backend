@@ -54,3 +54,7 @@ class User:
         parameters=[self.email]
         db.execute(query, parameters, commit=True)
         self.confirmed_account = 1
+
+    def get_permission_level(self):
+        query = "SELECT level_permission FROM tb_user_type WHERE id_user_type = %s"
+        return db.execute(query, [self.user_type])[0].level_permission

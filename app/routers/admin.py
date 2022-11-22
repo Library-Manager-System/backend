@@ -21,7 +21,7 @@ async def first_access():
     if (User.count() == 0):
         return {
             "msg": "Use the following token to:    1) Create the first admin    2) Confirm the first admin    3) Give the first admin the maximum permission    Ps.:(this token will be invalid after one hour)",
-            "access_token": signJWT("admin", type=3)["access_token"]
+            "access_token": signJWT("admin", permission_level=3)["access_token"]
         }
     raise HTTPException(status_code=404, detail="Not Found")
 

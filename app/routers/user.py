@@ -85,3 +85,14 @@ async def confirm_user(email: str):
         }
     except IndexError:
         raise HTTPException(status_code=404, detail="User not found")
+
+@router.get("/all", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["admin"])
+async def get_all_users(need_confirmation: bool = False):
+    users = User.find_all(need_confirmation)
+    return list(map(lambda user: {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "confirmed_account": user.confirmed_account,
+        "type": user.user_type
+    }, users))

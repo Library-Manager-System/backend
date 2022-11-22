@@ -40,6 +40,14 @@ class User:
         query = "SELECT COUNT(*) as count FROM tb_user"
         return db.execute(query, [])[0].count
 
+    @classmethod
+    def find_all(cls, need_confirmation = False):
+        query = "SELECT * FROM tb_user"
+        if need_confirmation:
+            query += " WHERE confirmed_account = b'0'"
+        users = db.execute(query, [])
+        return [User(user.id_user, user.name_user, user.email_user, "", user.phone_number_user, user.address_user, user.id_user_type, user.confirmed_account) for user in users]
+
     def set_type(self, type):
         query="UPDATE tb_user SET id_user_type = %s WHERE email_user = %s;"
         parameters=[type, self.email]

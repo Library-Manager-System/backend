@@ -2,7 +2,8 @@ from database.shared import db
 import mysql.connector
 
 class Loan:
-    def __init__(self, id_loan, id_user, id_copy, dt_expected_collect, dt_loan, dt_expected_devolution_loan, approved_loan, dt_real_devolution_loan=None) -> None:
+    def __init__(self,id_loan, id_user, id_copy, dt_expected_collect, dt_loan, dt_expected_devolution_loan, approved_loan, 
+                 dt_real_devolution_loan=None) -> None:
         self.id_loan = id_loan
         self.id_user = id_user
         self.id_copy = id_copy
@@ -11,7 +12,7 @@ class Loan:
         self.dt_expected_devolution_loan = dt_expected_devolution_loan
         self.dt_real_devolution_loan = dt_real_devolution_loan
         self.approved_loan = approved_loan
-            
+
     @classmethod
     def new(cls, id_user, id_copy, dt_expected_collect, dt_loan, dt_expected_devolution_loan, approved_loan):
         query = """

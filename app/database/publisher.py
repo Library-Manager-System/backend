@@ -7,18 +7,15 @@ class Publisher:
         self.id = id
         self.name = name
 
-
     @classmethod        
     def list_publisher (cls):
         list_publisher = db.execute('SELECT * FROM tb_publisher;')
         return Book(list_publisher)
-    
-    
+
     @classmethod
     def insert_publisher(cls, name):
         new_publisher = '''INSERT INTO tb_publisher(name_publisher) 
-            VALUES
-	            (%s);
+            VALUES (%s);
         '''
         try:
             parameters = [name]
@@ -49,6 +46,3 @@ class Publisher:
 
     # @classmethod
     # def delete_publisher
-
-
-    

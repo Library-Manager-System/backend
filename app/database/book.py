@@ -3,7 +3,9 @@ import mysql.connector
 
 
 class Book:
-    def __init__(self, id: int, isbn_book: str, title_book: str, limit_days_loan: int, year_book: int, synopsis_book: str, id_publisher: int, name_publisher: str = None, name_author: str = None, name_category: str = None) -> None:
+    def __init__(self, id: int, isbn_book: str, title_book: str, limit_days_loan: int, year_book: int, synopsis_book: str,
+                 id_publisher: int, name_publisher: str = None, name_author: str = None, name_category: str = None,
+                 id_copy: int = None, available_copy: bool = None) -> None:
         self.id = id
         self.isbn_book = isbn_book
         self.title_book = title_book
@@ -14,6 +16,8 @@ class Book:
         self.name_publisher = name_publisher,
         self.name_author = name_author,
         self.name_category = name_category
+        self.id_copy = id_copy
+        self.available_copy = available_copy
 
     # Adicionar livros
     @classmethod
@@ -27,15 +31,15 @@ class Book:
         try:
             parameters = [isbn_book, title_book, limit_days_loan,
                           year_book, synopsis_book, id_publisher]
-            db.execute(new_book, parameters, commit=True)
-            return Book(isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
+            id = db.execute(new_book, parameters, commit=True)
+            return Book(id, isbn_book, title_book, limit_days_loan, year_book, synopsis_book, id_publisher)
         except mysql.connector.Error as err:
             return err.errno
 
     # Consultar todos os livros
     @classmethod
     def list_book(cls):
-        list_book = db.execute('SELECT * FROM tb_book;')
+        list_book = db.execute('SELECT * FROM vw_book;')
         books = []
         for book in list_book:
             books.append(Book(
@@ -45,16 +49,20 @@ class Book:
                 book.limit_days_loan,
                 book.year_book,
                 book.synopsis_book or "",
-                book.id_publisher
+                book.id_publisher,
+                book.name_publisher,
+                book.name_author,
+                book.name_category,
+                book.id_copy,
+                book.available_copy
             ))
         return books
 
     # Consultar livros específicos
     @classmethod
-    def find_book_by_data(cls,
-                          book_parameter):
+    def find_book_by_data(cls, book_parameter):
         list_book = db.execute(
-            '''SELECT * FROM tb_book
+            '''SELECT * FROM vw_book
             WHERE isbn_book = %s
             OR title_book LIKE %s
             OR year_book = %s
@@ -74,30 +82,23 @@ class Book:
                 book.limit_days_loan,
                 book.year_book,
                 book.synopsis_book or "",
-                book.id_publisher
+                book.id_publisher,
+                book.name_publisher,
+                book.name_author,
+                book.name_category,
+                book.id_copy,
+                book.available_copy
             ))
         return books
 
     @classmethod
     def find_book_by_isbn(cls, isbn: str):
         specific_book = db.execute(
-            ''' SELECT
-                    B.id_book, B.isbn_book, B.title_book, 
-                    B.limit_days_loan, B.year_book, B.synopsis_book,
-                    P.name_publisher, P.id_publisher, A.name_author, C.name_category
-                FROM tb_book B
-                    INNER JOIN tb_publisher P
-                        ON P.id_publisher = B.id_publisher
-                    INNER JOIN tb_book_author BA
-                        ON BA.id_book = B.id_book
-                    INNER JOIN tb_author A
-                        ON A.id_author = BA.id_Author
-                    INNER JOIN tb_book_category BC
-                        ON BC.id_book = B.id_book
-                    INNER JOIN tb_category C
-                        ON C.id_category = BC.id_category
+            '''
+            SELECT * FROM vw_book
                 WHERE isbn_book = %s
-                GROUP BY isbn_book;''',
+            LIMIT 1;
+            ''',
             [isbn]
         )[0]
         return Book(
@@ -110,8 +111,36 @@ class Book:
             specific_book.id_publisher,
             specific_book.name_publisher,
             specific_book.name_author,
-            specific_book.name_category,
+            specific_book.name_category
         )
+
+    @classmethod
+    def find_available_books_by_isbn(cls, isbn):
+        list_book = db.execute(
+            '''
+            SELECT * FROM vw_book
+                WHERE isbn_book = %s
+                    AND available_copy = 1;
+            ''',
+            [isbn]
+        )[0]
+        books = []
+        for book in list_book:
+            books.append(Book(
+                book.id_book,
+                book.isbn_book,
+                book.title_book,
+                book.limit_days_loan,
+                book.year_book,
+                book.synopsis_book or "",
+                book.id_publisher,
+                book.name_publisher,
+                book.name_author,
+                book.name_category,
+                book.id_copy,
+                book.available_copy
+            ))
+        return books
 
     # Alterar livros específicos
     @classmethod

@@ -16,8 +16,8 @@ class Database:
         cs = self.cnx.cursor(named_tuple=True)
         cs.execute(query, parameters)
         if commit:
-            result = cs.lastrowid
             self.cnx.commit()
+            result = cs.lastrowid
         else:
             result = cs.fetchall()
         cs.close()

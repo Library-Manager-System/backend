@@ -27,7 +27,7 @@ class Author:
     def insert_author(cls, name):
         new_author = '''INSERT INTO tb_author(name_author) 
             VALUES 
-	            (%s);
+                (%s);
         '''
         try:
             parameters = [name]
@@ -43,5 +43,3 @@ class Author:
 
     # @classmethod
     # def delete_author
-
-    

@@ -79,6 +79,9 @@ async def confirm_user(email: str):
     try:
         user = User.find(email)
         user.confirm_account()
-        return user
+        return {
+            "msg": "User confirmed",
+            "user": user.email
+        }
     except IndexError:
         raise HTTPException(status_code=404, detail="User not found")

@@ -73,3 +73,9 @@ class Loan:
         query = "UPDATE tb_loan SET approved_loan = b'1' WHERE id_loan = %s;"
         db.execute(query, [self.id_loan], commit=True)
         self.approve_loan = 1
+
+    def devolution_loan(self):
+        query = "UPDATE tb_loan SET dt_real_devolution_loan = %s WHERE id_loan = %s;"
+        db.execute(query, [self.dt_real_devolution_loan, self.id_loan], commit=True)
+        query = "UPDATE tb_copy SET available_copy = b'1' WHERE id_copy = %s;"
+        db.execute(query, [self.id_copy], commit=True)

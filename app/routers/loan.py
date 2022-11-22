@@ -87,17 +87,21 @@ async def request_loan_book(
 class ReturnBook(BaseModel):
     loan_id: str
 
-@router.post("/return", tags=["loan"])
-async def return_book(
-        return_book: ReturnBook,
-        token_data = Depends(JWTBearer(min_permission=2))
-    ):
+@router.post("/return", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["loan"])
+async def return_book(return_book: ReturnBook):
 
-    #TODO Add to the tb_loan the devolution date
+    try:
+        # Get loan from database
+        loan = Loan.find(return_book.loan_id)
+    except IndexError:
+        # Loan not found
+        raise HTTPException(status_code=404, detail="Loan not found")
+    loan.dt_real_devolution_loan = date.today()
+    loan.devolution_loan()
     return {
-        "isbn": "",
-        "loan_date": "",
-        "devolution_date": "",
+        "isbn": loan.isbn,
+        "loan_date": loan.dt_loan,
+        "devolution_date": loan.dt_real_devolution_loan,
     }
 
 

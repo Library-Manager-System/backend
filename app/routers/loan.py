@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from typing import Union
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from auth.jwt_bearer import JWTBearer
 from database.loan import Loan
@@ -61,7 +61,7 @@ async def request_loan_book(
         user_id,
         copy.id,
         loan_book.date_of_collection,
-        date.today(),
+        datetime.now(),
         date_expected_devolution_loan,
         False,
     )

@@ -111,7 +111,8 @@ class Book:
             specific_book.id_publisher,
             specific_book.name_publisher,
             specific_book.name_author,
-            specific_book.name_category
+            specific_book.name_category,
+            available_copy=specific_book.available_copy
         )
 
     @classmethod

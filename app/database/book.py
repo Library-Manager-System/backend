@@ -178,13 +178,11 @@ class Book:
         )
 
     # Deletar livros específicos
-        # Lógica:
-        # Receber entrada do usuário sobre qual livro deseja deletar dados (por título ou isbn)
-        # Mostrar dados do livro
-        # Perguntar se deseja realmente deletar
-        # Deletar dados do livro
-    # @classmethod
-    # def delete_book(cls, book_parameter):
-    #     deleted_book = db.execute(
-    #         'DELETE * FROM tb_book WHERE title_book = %s OR isbn_book = %s;', [book_parameter, book_parameter])[0]
-    #     return Book(deleted_book.book_parameter)
+    @classmethod
+    def delete_book(cls, book_parameter):
+        deleted_book = db.execute(
+            "DELETE FROM tb_book WHERE isbn_book = %s LIMIT 1;",
+            [book_parameter],
+            commit=True
+        )
+        return deleted_book

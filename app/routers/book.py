@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from pydantic import BaseModel
 
 from auth.jwt_bearer import JWTBearer
 from database.book import Book
@@ -55,5 +56,44 @@ async def edit_book(
             id_publisher
         )
         return book
+    except IndexError:
+        raise HTTPException(status_code=404, detail="Book not found")
+
+
+# Add book
+class AddBook(BaseModel):
+    isbn: str
+    title_book: str
+    limit_days_loan: int
+    year_book: int
+    synopsis_book: str = None
+    id_publisher: int
+
+@router.post("/add", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["book"])
+async def add_book(
+        add_book: AddBook
+    ):
+        # TODO Get more info about book to store in database
+        book = Book.new(
+            add_book.isbn,
+            add_book.title_book,
+            add_book.limit_days_loan,
+            add_book.year_book,
+            add_book.synopsis_book,
+            add_book.id_publisher
+        )
+        if book == 1062:
+            raise HTTPException(status_code=409, detail="Duplicate entry")
+        if book == 1452:
+            raise HTTPException(status_code=404, detail="Publisher not found")
+        return book
+
+
+# Delete book
+@router.delete("/delete", dependencies=[Depends(JWTBearer(min_permission=2))], tags=["book"])
+async def delete_book(isbn: str):
+    try:
+        Book.delete_book(isbn)
+        return {"isbn": isbn}
     except IndexError:
         raise HTTPException(status_code=404, detail="Book not found")
